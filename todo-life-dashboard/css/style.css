@@ -1,0 +1,147 @@
+/*
+ * style.css
+ * Minimal custom styles for To-Do Life Dashboard.
+ * Tailwind CSS (via CDN) handles the majority of styling.
+ * This file covers: dark-mode CSS custom properties, smooth transitions,
+ * and small details that Tailwind utility classes cannot express cleanly.
+ */
+
+/* =========================================================
+   1. CSS Custom Properties — Light & Dark theme tokens
+   ========================================================= */
+
+:root {
+  --color-bg: #f3f4f6;          /* gray-100 */
+  --color-surface: #ffffff;     /* white */
+  --color-border: #e5e7eb;      /* gray-200 */
+  --color-text-primary: #1f2937;  /* gray-800 */
+  --color-text-muted: #6b7280;   /* gray-500 */
+  --color-accent: #4f46e5;      /* indigo-600 */
+  --color-accent-light: #818cf8; /* indigo-400 */
+  --color-error: #ef4444;       /* red-500 */
+  --color-success: #16a34a;     /* green-600 */
+}
+
+html.dark {
+  --color-bg: #111827;          /* gray-900 */
+  --color-surface: #1f2937;     /* gray-800 */
+  --color-border: #374151;      /* gray-700 */
+  --color-text-primary: #f3f4f6; /* gray-100 */
+  --color-text-muted: #9ca3af;  /* gray-400 */
+  --color-accent: #4f46e5;
+  --color-accent-light: #818cf8;
+  --color-error: #f87171;       /* red-400 */
+  --color-success: #4ade80;     /* green-400 */
+}
+
+/* =========================================================
+   2. Smooth color-scheme transitions
+   ========================================================= */
+
+/*
+ * Apply transition to elements that change appearance on theme switch.
+ * Tailwind's `transition-colors` class handles individual elements,
+ * but this rule catches everything in one place so no element "flashes".
+ */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+}
+
+/* Opt-out for the timer display — instant visual feedback is preferred */
+#timer-display {
+  transition: none;
+}
+
+/* =========================================================
+   3. Tabular numbers for clock & timer
+   ========================================================= */
+
+#time,
+#timer-display {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* =========================================================
+   4. Task list item — strikethrough + muted for completed tasks
+   ========================================================= */
+
+.task-completed .task-text {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+/* =========================================================
+   5. Scrollable task list when there are many tasks
+   ========================================================= */
+
+#task-list {
+  max-height: 24rem; /* ~384px */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+#task-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+#task-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#task-list::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 9999px;
+}
+
+/* =========================================================
+   6. Quick link chips
+   ========================================================= */
+
+.link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;       /* gap-1.5 */
+  padding: 0.25rem 0.625rem; /* px-2.5 py-1 */
+  border-radius: 9999px;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500;
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+.link-chip:hover {
+  background-color: var(--color-surface);
+}
+
+/* =========================================================
+   7. Utility: visually hidden (screen-reader only)
+   ========================================================= */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* =========================================================
+   8. Focus-visible outline for keyboard navigation
+   ========================================================= */
+
+:focus-visible {
+  outline: 2px solid var(--color-accent-light);
+  outline-offset: 2px;
+}

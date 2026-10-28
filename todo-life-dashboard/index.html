@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To-Do Life Dashboard</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Configure Tailwind dark mode to use class strategy
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Custom styles (dark mode variables, transitions) -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Apply saved theme before first paint to avoid flash -->
+  <script>
+    (function () {
+      var theme = localStorage.getItem('tdl_theme') || 'light';
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      }
+    })();
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen transition-colors duration-300 font-sans">
+
+  <!-- ===== HEADER ===== -->
+  <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+
+      <!-- Greeting, Date, Time -->
+      <div class="flex flex-col gap-1">
+        <h1 id="greeting" class="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          Good Morning!
+        </h1>
+        <p id="date" class="text-sm text-gray-500 dark:text-gray-400">
+          <!-- e.g. Monday, 26 October 2025 -->
+        </p>
+        <p id="time" class="text-3xl font-semibold tabular-nums text-indigo-600 dark:text-indigo-400">
+          00:00:00
+        </p>
+      </div>
+
+      <!-- Name input + Theme toggle -->
+      <div class="flex flex-col gap-3 sm:items-end">
+        <!-- Name input row -->
+        <div class="flex items-center gap-2">
+          <label for="name-input" class="sr-only">Your name</label>
+          <input
+            id="name-input"
+            type="text"
+            placeholder="Enter your name…"
+            maxlength="50"
+            class="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 w-44 transition-colors"
+          />
+          <button
+            id="save-name"
+            type="button"
+            class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          >
+            Save
+          </button>
+        </div>
+
+        <!-- Theme toggle -->
+        <button
+          id="theme-toggle"
+          type="button"
+          aria-label="Toggle light/dark theme"
+          class="self-end flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        >
+          <!-- Sun icon (shown in dark mode) -->
+          <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden dark:block text-yellow-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <!-- Moon icon (shown in light mode) -->
+          <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 block dark:hidden text-indigo-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <span class="dark:hidden">Dark Mode</span>
+          <span class="hidden dark:inline">Light Mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== MAIN: To-Do + Timer ===== -->
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- To-Do List Card -->
+      <section
+        aria-labelledby="todo-heading"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col gap-4"
+      >
+        <h2 id="todo-heading" class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+          ✅ To-Do List
+        </h2>
+
+        <!-- Add Task Input -->
+        <div class="flex gap-2">
+          <label for="task-input" class="sr-only">New task</label>
+          <input
+            id="task-input"
+            type="text"
+            placeholder="Add a new task…"
+            maxlength="200"
+            class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors"
+          />
+          <button
+            id="add-task-btn"
+            type="button"
+            class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 whitespace-nowrap"
+          >
+            Add
+          </button>
+        </div>
+
+        <!-- Inline error for tasks -->
+        <p
+          id="task-error"
+          role="alert"
+          aria-live="polite"
+          class="text-sm text-red-500 dark:text-red-400 hidden"
+        ></p>
+
+        <!-- Task List -->
+        <ul
+          id="task-list"
+          aria-label="Task list"
+          class="flex flex-col gap-2 min-h-[4rem]"
+        >
+          <!-- Task items injected by JS -->
+        </ul>
+      </section>
+
+      <!-- Focus Timer Card -->
+      <section
+        aria-labelledby="timer-heading"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col gap-4 items-center"
+      >
+        <h2 id="timer-heading" class="text-lg font-semibold text-gray-800 dark:text-gray-100 self-start">
+          ⏱ Focus Timer
+        </h2>
+
+        <!-- Timer display -->
+        <div
+          id="timer-display"
+          aria-live="polite"
+          aria-label="Timer countdown"
+          class="text-6xl font-bold tabular-nums text-indigo-600 dark:text-indigo-400 py-4"
+        >
+          25:00
+        </div>
+
+        <!-- Completion indicator (hidden until 00:00) -->
+        <p
+          id="timer-complete"
+          role="status"
+          aria-live="assertive"
+          class="text-green-600 dark:text-green-400 font-semibold text-base hidden"
+        >
+          🎉 Session complete! Take a break.
+        </p>
+
+        <!-- Timer controls -->
+        <div class="flex gap-3">
+          <button
+            id="start-timer"
+            type="button"
+            class="px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Start
+          </button>
+          <button
+            id="pause-timer"
+            type="button"
+            disabled
+            class="px-5 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Pause
+          </button>
+          <button
+            id="reset-timer"
+            type="button"
+            class="px-5 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-500 text-white text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
+            Reset
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ===== QUICK LINKS SECTION ===== -->
+  <section
+    aria-labelledby="links-heading"
+    class="max-w-5xl mx-auto px-4 pb-12"
+  >
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 flex flex-col gap-4">
+      <h2 id="links-heading" class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+        🔗 Quick Links
+      </h2>
+
+      <!-- Add Link Inputs -->
+      <div class="flex flex-col sm:flex-row gap-2">
+        <label for="link-label" class="sr-only">Link label</label>
+        <input
+          id="link-label"
+          type="text"
+          placeholder="Label (e.g. GitHub)"
+          maxlength="100"
+          class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors"
+        />
+        <label for="link-url" class="sr-only">Link URL</label>
+        <input
+          id="link-url"
+          type="url"
+          placeholder="URL (e.g. https://github.com)"
+          maxlength="500"
+          class="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors"
+        />
+        <button
+          id="add-link-btn"
+          type="button"
+          class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 whitespace-nowrap"
+        >
+          Add Link
+        </button>
+      </div>
+
+      <!-- Inline error for links -->
+      <p
+        id="link-error"
+        role="alert"
+        aria-live="polite"
+        class="text-sm text-red-500 dark:text-red-400 hidden"
+      ></p>
+
+      <!-- Links list -->
+      <ul
+        id="link-list"
+        aria-label="Quick links list"
+        class="flex flex-wrap gap-2"
+      >
+        <!-- Link items injected by JS -->
+      </ul>
+    </div>
+  </section>
+
+  <!-- JS -->
+  <script src="js/script.js" defer></script>
+</body>
+</html>
